@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Server
 {
-    internal class ServiceAttribute : Attribute
+    internal class ControllerAttribute : Attribute
     {
         public string Route { get; }
 
-        public ServiceAttribute(string route)
+        public ControllerAttribute(string route)
         {
             Route = route;
         }

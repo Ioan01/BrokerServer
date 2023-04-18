@@ -4,9 +4,9 @@
     {
         static async Task Main(string[] args)
         {
-            ServiceManager.Initialize();
+            ControllerManager.Initialize();
 
-            await ServiceManager.Start();
+            await ControllerManager.Start();
         }
     }
 }

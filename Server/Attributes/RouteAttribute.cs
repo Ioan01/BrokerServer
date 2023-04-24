@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Server
+namespace Server.Attributes
 {
-    internal class ControllerAttribute : Attribute
+    internal class RouteAttribute : Attribute
     {
         public string Route { get; }
 
-        public ControllerAttribute(string route)
+        public RouteAttribute(string route)
         {
             Route = route;
         }

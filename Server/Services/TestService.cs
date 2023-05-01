@@ -1,45 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Server.Attributes;
+﻿using Server.Attributes;
+using Server.Interfaces;
 
-namespace Server.Services
+namespace Server.Services;
+
+[Service]
+internal class TestService : TestInterface
 {
-    [Service("test")]
-    internal class TestService
+    private int called = 0;
+
+
+    [Route]
+    public void A()
     {
-        [Route("hello")]
-        public string Hello()
-        {
-            return "hello";
-        }
+        Console.WriteLine("A called");
+    }
 
+    [Route]
+    public string B()
+    {
+        return $"B called {called++}";
+    }
 
-
-        [Route("testRoute")]
-        public void route1()
-        {
-            Console.WriteLine("test route called");
-        }
-
-        [Route("testRoute2")]
-        public string route2()
-        {
-            return "asdads";
-        }
-
-        [Route("testRoute3")]
-        public string route3(string a,int b,float c)
-        {
-            return $"{a} --- {b} --- {c}";
-        }
-
-        [Route("test")]
-        public int test(int a,int b,float c)
-        {
-            return (int)(a+b+c);
-        }
+    [Route]
+    public string C(int a, float b, string c)
+    {
+        return a.ToString() + b + c;
     }
 }

@@ -1,53 +1,64 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 using Server.Attributes;
 
-namespace Server
+namespace Server;
+
+internal enum Lifespan
 {
-    internal class ServiceRegistration
+    Singleton,
+    Transient
+}
+
+
+internal class ServiceRegistration
+{
+    private readonly Lifespan _lifespan;
+
+    private readonly Dictionary<string, MethodInfo> routes = new();
+
+    private object _service;
+
+    private Type _serviceType;
+
+
+    public ServiceRegistration(Type serviceType, Lifespan lifespan)
     {
-        public object Service { get; }
+        _lifespan = lifespan;
+        _serviceType = serviceType;
 
-        private readonly Dictionary<string,MethodInfo> routes = new();
+        if (lifespan == Lifespan.Singleton)
+            _service = Activator.CreateInstance(serviceType);
 
 
-        public ServiceRegistration(object service)
+        foreach (var methodInfo in serviceType.GetMethods())
         {
-            Service = service;
+            var attribute = methodInfo.GetCustomAttributes()
+                .FirstOrDefault(attr => attr is RouteAttribute) as RouteAttribute;
 
-            foreach (var methodInfo in service.GetType().GetMethods())
-            {
-                var attribute = methodInfo.GetCustomAttributes()
-                    .FirstOrDefault(attr=>attr is RouteAttribute) as RouteAttribute;
-
-                if (attribute != null)
-                {
-                    if (string.IsNullOrEmpty(attribute.Route))
-                        throw new Exception($"{methodInfo.Name} route cannot be empty");
-
-                    if (routes.ContainsKey(attribute.Route))
-                        throw new Exception($"Duplicate route exception {methodInfo.Name}");
-                    routes.Add(attribute.Route.ToLower(), methodInfo);
-                }
-
-            }
+            if (attribute != null) routes.Add(methodInfo.Name.ToLower(), methodInfo);
         }
+    }
 
-        public object? CallRoute(string route,ArraySegment<byte> message)
+    public object Service
+    {
+        get
         {
-            if (!routes.ContainsKey(route))
-                return null;
-
-            var routeMethod = routes[route];
-
-            object[] paramArray = Unmarshaller.unmarshall(message, routeMethod.GetParameters());
-
-
-            return routeMethod.Invoke(Service, paramArray);
+            if (_lifespan == Lifespan.Transient)
+                _service = Activator.CreateInstance(_serviceType);
+            return _service;
         }
+    }
+
+    public object? CallRoute(string route, ArraySegment<byte> message)
+    {
+        if (!routes.ContainsKey(route))
+            return null;
+
+        var routeMethod = routes[route];
+
+        var paramArray = Unmarshaller.unmarshall(message, routeMethod.GetParameters());
+
+
+        return routeMethod.Invoke(Service, paramArray);
     }
 }

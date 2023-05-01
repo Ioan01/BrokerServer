@@ -1,18 +1,18 @@
 ﻿using Server.Services;
 
-namespace Server
+namespace Server;
+
+internal class Program
 {
-    internal class Program
+    private static async Task Main(string[] args)
     {
-        static async Task Main(string[] args)
-        {
-            ServiceManager.AddService(new TestService());
+        var host = new ServiceHost();
 
-            ServiceManager.Initialize("127.0.0.1");
+        host.AddService<TestService>(Lifespan.Transient);
 
-            
+        await host.Initialize("http://127.0.0.1:8000/registerHost", "test");
 
-            await ServiceManager.Start();
-        }
+
+        await host.Start();
     }
 }

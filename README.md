@@ -1,4 +1,5 @@
 # Remote Method Invocation Project - Server Side
+Client-Side portion available [here](https://github.com/Ioan01/BrokerClient)
 ## Overview
 - A simple implementation of a service-host allowing clients to invoke functions remotely
 - Utilizes reflection to route the packet to the appropriate service and call the desired function in the service
